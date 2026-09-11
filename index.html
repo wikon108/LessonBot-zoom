@@ -3,19 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LessonBot • Zoom</title>
+    <title>LessonBot • Zoom">
 
     <style>
-        * {
-            box-sizing: border-box;
-        }
-
-        html, body {
-            width: 100%;
-            height: 100%;
-            margin: 0;
-        }
-
+        * { box-sizing: border-box; }
+        html, body { width: 100%; height: 100%; margin: 0; }
         body {
             display: flex;
             align-items: center;
@@ -24,24 +16,9 @@
             background: #fff;
             color: #222;
         }
-
-        #app {
-            text-align: center;
-            padding: 20px;
-        }
-
-        h2 {
-            margin: 0 0 10px;
-            font-size: 22px;
-            font-weight: 500;
-        }
-
-        p {
-            margin: 0;
-            color: #666;
-            font-size: 15px;
-        }
-
+        #app { text-align: center; padding: 20px; }
+        h2 { margin: 0 0 10px; font-size: 22px; font-weight: 500; }
+        p { margin: 0; color: #666; font-size: 15px; }
         .button {
             display: inline-block;
             margin-top: 20px;
@@ -51,10 +28,7 @@
             color: #fff;
             text-decoration: none;
         }
-
-        .button:hover {
-            background: #2681e8;
-        }
+        .button:hover { background: #2681e8; }
     </style>
 </head>
 
@@ -65,49 +39,40 @@
         const app = document.getElementById("app");
         const parts = location.pathname.split("/").filter(Boolean);
 
-        if (parts.length !== 3) {
+        let id = sessionStorage.getItem("zoomId");
+        let password = sessionStorage.getItem("zoomPassword");
+
+        sessionStorage.removeItem("zoomId");
+        sessionStorage.removeItem("zoomPassword");
+
+        if (!id || !password) {
             window.close();
 
             setTimeout(() => {
                 document.body.innerHTML = "";
             }, 100);
         } else {
-            const id = parts[1].replace(/\D/g, "");
-            const password = parts[2];
+            const mobile = /Android|iPhone|iPad|iPod|Windows Phone/i.test(navigator.userAgent);
+            const pwd = encodeURIComponent(password);
 
-            if (!id || !password) {
-                window.close();
+            let zoom;
 
-                setTimeout(() => {
-                    document.body.innerHTML = "";
-                }, 100);
+            if (mobile) {
+                zoom = `zoomus://zoom.us/join?confno=${id}&pwd=${pwd}`;
             } else {
-                const mobile = /Android|iPhone|iPad|iPod|Windows Phone/i.test(
-                    navigator.userAgent
-                );
-
-                const pwd = encodeURIComponent(password);
-
-                let zoom;
-
-                if (mobile) {
-                    zoom = `zoomus://zoom.us/join?confno=${id}&pwd=${pwd}`;
-                } else {
-                    zoom = `zoommtg://zoom.us/join?confno=${id}&pwd=${pwd}`;
-                }
-
-                app.innerHTML = "<h2>Открытие Zoom...</h2>";
-
-                location.href = zoom;
-
-                setTimeout(() => {
-                    app.innerHTML = `
-                        <h2>Не удалось открыть Zoom</h2>
-                        <p>Нажмите кнопку ниже, чтобы открыть Zoom вручную.</p>
-                        <a class="button" href="${zoom}">Открыть Zoom</a>
-                    `;
-                }, 2000);
+                zoom = `zoommtg://zoom.us/join?confno=${id}&pwd=${pwd}`;
             }
+
+            app.innerHTML = "<h2>Открытие Zoom...</h2>";
+            location.href = zoom;
+
+            setTimeout(() => {
+                app.innerHTML = `
+                    <h2>Не удалось открыть Zoom</h2>
+                    <p>Нажмите кнопку ниже, чтобы открыть Zoom вручную.</p>
+                    <a class="button" href="${zoom}">Открыть Zoom</a>
+                `;
+            }, 2000);
         }
     </script>
 </body>
